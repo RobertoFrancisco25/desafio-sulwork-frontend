@@ -1,0 +1,38 @@
+<!-- NAVBAR CORRIGIDO -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="position: relative; z-index: 1030;">
+  <div class="container" style="position: relative; z-index: 1031;">
+    <a class="navbar-brand" routerLink="/" style="z-index: 1032;">
+      <i class="fas fa-mug-hot me-2"></i>
+      Sistema Café da Manhã
+    </a>
+    
+    <div class="navbar-nav ms-auto" style="position: relative; z-index: 1031;">
+      <a class="nav-link" routerLink="/" 
+         routerLinkActive="active" 
+         [routerLinkActiveOptions]="{exact: true}"
+         style="position: relative; z-index: 1032; cursor: pointer;">
+        Dashboard
+      </a>
+      <a class="nav-link" routerLink="/cafes" routerLinkActive="active"
+         style="position: relative; z-index: 1032; cursor: pointer;">
+        Cafés
+      </a>
+      <a class="nav-link" routerLink="/colaboradores" routerLinkActive="active"
+         style="position: relative; z-index: 1032; cursor: pointer;">
+        Colaboradores
+      </a>
+      <a class="nav-link" routerLink="/itens" routerLinkActive="active"
+         style="position: relative; z-index: 1032; cursor: pointer;">
+        Itens
+      </a>
+    </div>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>
+
+<footer class="bg-dark text-light text-center py-4 mt-5">
+  <div class="container">
+    <p class="mb-0">Sistema de Gerenciamento de Café da Manhã</p>
+  </div>
+</footer>

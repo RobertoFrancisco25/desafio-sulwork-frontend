@@ -1,0 +1,20 @@
+.navbar {
+    position: relative;
+    z-index: 1030 !important; /* Bootstrap usa 1030 para navbar */
+  }
+  
+  .navbar-nav {
+    z-index: 1031 !important;
+  }
+  
+  .navbar-nav .nav-link {
+    position: relative;
+    z-index: 1032 !important;
+    cursor: pointer !important;
+  }
+  
+  /* Garantir que nada cubra o navbar */
+  .navbar ~ * {
+    position: relative;
+    z-index: 1;
+  }

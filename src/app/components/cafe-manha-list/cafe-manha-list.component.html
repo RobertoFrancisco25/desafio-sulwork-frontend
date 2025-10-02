@@ -1,0 +1,187 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Cabeçalho e Mensagens -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-mug-hot"></i> Cafés da Manhã</h2>
+        <div>
+          <button class="btn btn-outline-secondary me-2" (click)="carregarCafes()" [disabled]="carregando">
+            <i class="fas fa-refresh"></i> {{ carregando ? 'Carregando...' : 'Recarregar' }}
+          </button>
+          <button class="btn btn-primary" (click)="abrirFormCriar()">
+            <i class="fas fa-plus"></i> Novo Café
+          </button>
+        </div>
+      </div>
+
+      <!-- Mensagens do Sistema -->
+      <div *ngIf="mensagem" class="alert alert-dismissible fade show" 
+          [class.alert-success]="tipoMensagem === 'success'"
+          [class.alert-danger]="tipoMensagem === 'error'"
+          [class.alert-info]="tipoMensagem === 'info'">
+            {{ mensagem }}
+          <button type="button" class="btn-close" (click)="limparMensagem()"></button>
+          </div>
+      <!-- Formulário de Criação -->
+      <div *ngIf="mostrarFormCriar" class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Criar Novo Café</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="criarCafe()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Data do Café</label>
+                  <input type="date" class="form-control" [(ngModel)]="novoCafe.data" name="dataCriar" required>
+                  <div class="form-text">Formato: DD-MM-YYYY</div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success" [disabled]="carregando">
+                <i class="fas fa-save"></i> {{ carregando ? 'Criando...' : 'Criar Café' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="fecharForms()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Formulário de Edição -->
+      <div *ngIf="mostrarFormEditar" class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0"><i class="fas fa-edit"></i> Editar Café</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="atualizarCafe()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Data do Café</label>
+                  <input type="date" class="form-control" [(ngModel)]="cafeEditando.data" name="dataEditar" required>
+                  <div class="form-text">Formato: DD-MM-YYYY</div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-warning" [disabled]="carregando">
+                <i class="fas fa-save"></i> {{ carregando ? 'Atualizando...' : 'Atualizar' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="fecharForms()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Conteúdo Principal -->
+      <div class="row">
+        <!-- Lista de Cafés -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Lista de Cafés</h5>
+            </div>
+            <div class="card-body p-0">
+              <div *ngIf="carregando && cafes.length === 0" class="text-center p-3">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-2">Carregando cafés...</p>
+              </div>
+
+              <div *ngIf="!carregando && cafes.length === 0" class="text-center p-4">
+                <i class="fas fa-mug-hot fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Nenhum café cadastrado</p>
+                <button class="btn btn-primary" (click)="abrirFormCriar()">
+                  <i class="fas fa-plus"></i> Criar Primeiro Café
+                </button>
+              </div>
+
+              <div class="list-group list-group-flush">
+                <div *ngFor="let cafe of cafes" 
+                     class="list-group-item list-group-item-action"
+                     [class.active]="cafeSelecionado?.id === cafe.id"
+                     (click)="selecionarCafe(cafe)">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">{{ cafe.data | date:'dd/MM/yyyy' }}</h6>
+                      <small class="text-muted">{{ cafe.itens.length }} itens cadastrados</small>
+                    </div>
+                    <div class="btn-group">
+                      <button class="btn btn-outline-warning btn-sm" 
+                              (click)="abrirFormEditar(cafe); $event.stopPropagation()"
+                              title="Editar café">
+                        <i class="fas fa-edit me-1"></i> Editar
+                      </button>
+                      <button class="btn btn-outline-danger btn-sm" 
+                              (click)="deletarCafe(cafe.id); $event.stopPropagation()"
+                              title="Excluir café">
+                        <i class="fas fa-trash me-1"></i> Excluir
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalhes do Café Selecionado -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Detalhes do Café</h5>
+            </div>
+            <div class="card-body">
+              <div *ngIf="!cafeSelecionado" class="text-center text-muted">
+                <i class="fas fa-mug-hot fa-3x mb-3"></i>
+                <p>Selecione um café para ver os detalhes</p>
+              </div>
+
+              <div *ngIf="cafeSelecionado">
+                <div class="mb-3">
+                  <strong>Data:</strong> {{ cafeSelecionado.data | date:'dd/MM/yyyy' }}
+                </div>
+                <div class="mb-3">
+                  <strong>Total de Itens:</strong> 
+                  <span class="badge bg-primary ms-2">{{ cafeSelecionado.itens.length }}</span>
+                </div>
+
+                <h6>Itens do Café:</h6>
+                <div *ngIf="cafeSelecionado.itens.length === 0" class="alert alert-info">
+                  Nenhum item cadastrado para este café
+                </div>
+
+                <div class="list-group">
+                  <div *ngFor="let item of cafeSelecionado.itens" class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ item.nome }}</strong>
+                        <br>
+                        <small class="text-muted">
+                          <i class="fas fa-user"></i> {{ item.nomeColaborador || 'Colaborador não informado' }}
+                          <span *ngIf="item.cpfColaborador">({{ item.cpfColaborador }})</span>
+                        </small>
+                      </div>
+                      <span class="badge" [class]="item.trouxeItem ? 'bg-success' : 'bg-warning'">
+                        {{ item.trouxeItem ? 'Trouxe' : 'Pendente' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Espaçamento extra para empurrar o rodapé para baixo -->
+  <div class="mt-5 mb-5" style="height: 600px;"></div>
+</div>

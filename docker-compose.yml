@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    container_name: frontend-angular
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    networks:
+      - app-network
+    environment:
+      - API_URL=http://desafio_sulwork_app:8080  
+
+networks:
+  app-network:
+    external: true
+    name: cafedamanha_app-network

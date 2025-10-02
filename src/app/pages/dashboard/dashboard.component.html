@@ -1,0 +1,149 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="display-4 mb-4">🏠 Dashboard - Sistema Café da Manhã</h1>
+    </div>
+  </div>
+
+  <!-- Cards de Estatísticas -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4 class="card-title">{{ totalCafes }}</h4>
+              <p class="card-text">Cafés da Manhã</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-mug-hot fa-2x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4 class="card-title">{{ totalColaboradores }}</h4>
+              <p class="card-text">Colaboradores</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-users fa-2x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-warning">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4 class="card-title">{{ totalItensHoje }}</h4>
+              <p class="card-text">Itens para Hoje</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-utensils fa-2x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de Informações -->
+  <div class="row">
+    <!-- Cafés Recentes -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-history"></i> Cafés Recentes</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="cafesRecentes.length === 0" class="alert alert-info">
+            Nenhum café cadastrado.
+          </div>
+          <div class="list-group">
+            <div *ngFor="let cafe of cafesRecentes" class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ cafe.data | date:'dd/MM/yyyy' }}</strong>
+                  <br>
+                  <small class="text-muted">{{ cafe.itens.length }} itens</small>
+                </div>
+                <span class="badge bg-primary">{{ cafe.itens.length }} itens</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colaboradores Recentes -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-user-plus"></i> Colaboradores Recentes</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="colaboradoresRecentes.length === 0" class="alert alert-info">
+            Nenhum colaborador cadastrado.
+          </div>
+          <div class="list-group">
+            <div *ngFor="let colab of colaboradoresRecentes" class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ colab.nome }}</strong>
+                  <br>
+                  <small class="text-muted">{{ colab.cpf }}</small>
+                </div>
+                <span class="badge bg-success">{{ colab.itens.length }} itens</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações Rápidas -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-bolt"></i> Ações Rápidas</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4 text-center">
+              <a routerLink="/cafes" class="btn btn-outline-primary btn-lg w-100 mb-2">
+                <i class="fas fa-mug-hot fa-2x mb-2"></i><br>
+                Gerenciar Cafés
+              </a>
+            </div>
+            <div class="col-md-4 text-center">
+              <a routerLink="/colaboradores" class="btn btn-outline-success btn-lg w-100 mb-2">
+                <i class="fas fa-users fa-2x mb-2"></i><br>
+                Gerenciar Colaboradores
+              </a>
+            </div>
+            <div class="col-md-4 text-center">
+              <a routerLink="/itens" class="btn btn-outline-warning btn-lg w-100 mb-2">
+                <i class="fas fa-utensils fa-2x mb-2"></i><br>
+                Gerenciar Itens
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Espaçamento extra para empurrar o rodapé para baixo -->
+  <div class="mt-5 mb-5" style="height: 200px;"></div>
+</div>

@@ -1,0 +1,201 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Cabeçalho -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-users"></i> Colaboradores</h2>
+        <div>
+          <button class="btn btn-outline-secondary me-2" (click)="carregarColaboradores()" [disabled]="carregando">
+            <i class="fas fa-refresh"></i> {{ carregando ? 'Carregando...' : 'Recarregar' }}
+          </button>
+          <button class="btn btn-primary" (click)="abrirFormCriar()">
+            <i class="fas fa-user-plus"></i> Novo Colaborador
+          </button>
+        </div>
+      </div>
+
+      <!-- Mensagens -->
+      <div *ngIf="mensagem" class="alert alert-dismissible fade show" 
+      [class.alert-success]="tipoMensagem === 'success'"
+      [class.alert-danger]="tipoMensagem === 'error'"
+      [class.alert-info]="tipoMensagem === 'info'">
+        {{ mensagem }}
+      <button type="button" class="btn-close" (click)="limparMensagem()"></button>
+      </div>
+
+      <!-- Formulário de Criação -->
+      <div *ngIf="mostrarFormCriar" class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-user-plus"></i> Novo Colaborador</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="criarColaborador()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Nome Completo</label>
+                  <input type="text" class="form-control" [(ngModel)]="novoColaborador.nome" name="nomeCriar" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">CPF</label>
+                  <input type="text" class="form-control" [ngModel]="novoColaborador.cpf" (input)="formatarCPFInput($event)"
+                  name="cpfCriar" placeholder="000.000.000-00" required>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success" [disabled]="carregando">
+                <i class="fas fa-save"></i> {{ carregando ? 'Criando...' : 'Criar' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="fecharForms()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Formulário de Edição -->
+      <div *ngIf="mostrarFormEditar" class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0"><i class="fas fa-edit"></i> Editar Colaborador</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="atualizarColaborador()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Nome Completo</label>
+                  <input type="text" class="form-control" [(ngModel)]="colaboradorEditando.nome" name="nomeEditar" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">CPF</label>
+                  <input type="text" class="form-control" [(ngModel)]="colaboradorEditando.cpf" name="cpfEditar" required>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-warning" [disabled]="carregando">
+                <i class="fas fa-save"></i> {{ carregando ? 'Atualizando...' : 'Atualizar' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="fecharForms()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Conteúdo Principal -->
+      <div class="row">
+        <!-- Lista de Colaboradores -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Lista de Colaboradores</h5>
+            </div>
+            <div class="card-body p-0">
+              <div *ngIf="carregando && colaboradores.length === 0" class="text-center p-3">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-2">Carregando colaboradores...</p>
+              </div>
+
+              <div *ngIf="!carregando && colaboradores.length === 0" class="text-center p-4">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Nenhum colaborador cadastrado</p>
+                <button class="btn btn-primary" (click)="abrirFormCriar()">
+                  <i class="fas fa-user-plus"></i> Cadastrar Primeiro Colaborador
+                </button>
+              </div>
+
+              <div class="list-group list-group-flush">
+                <div *ngFor="let colaborador of colaboradores" 
+                     class="list-group-item list-group-item-action"
+                     [class.active]="colaboradorSelecionado?.id === colaborador.id"
+                     (click)="selecionarColaborador(colaborador)">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">{{ colaborador.nome }}</h6>
+                      <small class="text-muted">CPF: {{ formatarCPF(colaborador.cpf) }}</small>
+                      <br>
+                      <small class="text-muted">{{ colaborador.itens.length }} itens trazidos</small>
+                    </div>
+                    <div class="btn-group">
+                      <button class="btn btn-outline-warning btn-sm" 
+                              (click)="abrirFormEditar(colaborador); $event.stopPropagation()"
+                              title="Editar colaborador">
+                        <i class="fas fa-edit me-1"></i> Editar
+                      </button>
+                      <button class="btn btn-outline-danger btn-sm" 
+                              (click)="deletarColaborador(colaborador.id); $event.stopPropagation()"
+                              title="Excluir colaborador">
+                        <i class="fas fa-trash me-1"></i> Excluir
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalhes do Colaborador -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Detalhes do Colaborador</h5>
+            </div>
+            <div class="card-body">
+              <div *ngIf="!colaboradorSelecionado" class="text-center text-muted">
+                <i class="fas fa-user fa-3x mb-3"></i>
+                <p>Selecione um colaborador para ver os detalhes</p>
+              </div>
+
+              <div *ngIf="colaboradorSelecionado">
+                <div class="mb-3">
+                  <strong>Nome:</strong> {{ colaboradorSelecionado.nome }}
+                </div>
+                <div class="mb-3">
+                  <strong>CPF:</strong> {{ formatarCPF(colaboradorSelecionado.cpf) }}
+                </div>
+                <div class="mb-3">
+                  <strong>Total de Itens:</strong> 
+                  <span class="badge bg-primary ms-2">{{ colaboradorSelecionado.itens.length }}</span>
+                </div>
+
+                <h6>Histórico de Itens:</h6>
+                <div *ngIf="colaboradorSelecionado.itens.length === 0" class="alert alert-info">
+                  Nenhum item registrado
+                </div>
+
+                <div class="list-group">
+                  <div *ngFor="let item of colaboradorSelecionado.itens" class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ item.nome }}</strong>
+                        <br>
+                        <small class="text-muted">{{ item.data | date:'dd/MM/yyyy' }}</small>
+                      </div>
+                      <span class="badge" [class]="item.trouxeItem ? 'bg-success' : 'bg-warning'">
+                        {{ item.trouxeItem ? 'Trouxe' : 'Pendente' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Espaçamento extra para empurrar o rodapé para baixo -->
+  <div class="mt-5 mb-5" style="height: 600px;"></div>
+</div>

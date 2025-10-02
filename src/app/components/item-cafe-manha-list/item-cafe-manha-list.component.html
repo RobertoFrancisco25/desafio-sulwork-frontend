@@ -1,0 +1,226 @@
+<div class="container mt-4 mb-5">
+  <div class="row">
+    <div class="col-12">
+      <!-- Cabeçalho -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-utensils"></i> Itens do Café da Manhã</h2>
+        <button class="btn btn-primary" (click)="abrirFormCriar()" [disabled]="!cafeExisteParaData()">
+          <i class="fas fa-plus"></i> Novo Item
+        </button>
+        <button class="btn btn-outline-info ms-2" (click)="atualizarListaCafes()" title="Recarregar lista de cafés">
+          <i class="fas fa-sync-alt"></i> Atualizar Cafés
+        </button>
+      </div>
+
+      <!-- Mensagens --><div *ngIf="mensagem" class="alert alert-dismissible fade show" 
+      [class.alert-success]="tipoMensagem === 'success'"
+      [class.alert-danger]="tipoMensagem === 'error'"
+      [class.alert-info]="tipoMensagem === 'info'">
+        {{ mensagem }}
+      <button type="button" class="btn-close" (click)="limparMensagem()"></button>
+      </div>
+
+      <!-- Filtro de Data -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <label class="form-label"><strong>Selecione a Data:</strong></label>
+              <input type="date" class="form-control" 
+                     [(ngModel)]="dataSelecionada"
+                     (change)="onDataChange()">
+            </div>
+            <div class="col-md-6">
+              <div *ngIf="!cafeExisteParaData()" class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Não existe café cadastrado para esta data.
+                <a href="javascript:void(0)" 
+                   class="fw-bold text-warning ms-1" 
+                   (click)="irParaCafes()"
+                   style="text-decoration: underline; cursor: pointer;">
+                  Criar café primeiro
+                </a>
+              </div>
+              <div *ngIf="cafeExisteParaData()" class="text-success mt-3">
+                <i class="fas fa-check-circle"></i> Café disponível para esta data
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário de Criação -->
+      <div *ngIf="mostrarFormCriar" class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Novo Item para {{ dataSelecionada | date:'dd/MM/yyyy' }}</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="criarItem()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Nome do Item</label>
+                  <input type="text" class="form-control" 
+                         [(ngModel)]="novoItem.nome" 
+                         name="nomeItem"
+                         placeholder="Ex: Pão de Queijo, Café, Suco..."
+                         required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Colaborador Responsável</label>
+                  <select class="form-control" 
+                          [(ngModel)]="novoItem.cpfColaborador" 
+                          name="cpfColaborador" 
+                          required>
+                    <option value="">Selecione um colaborador</option>
+                    <option *ngFor="let colab of colaboradores" 
+                            [value]="colab.cpf">
+                      {{ colab.nome }} - {{ colab.cpf }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success" [disabled]="carregando">
+                <i class="fas fa-save"></i> {{ carregando ? 'Criando...' : 'Criar Item' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="fecharForm()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Lista de Itens -->
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Itens para {{ dataSelecionada | date:'dd/MM/yyyy' }}</h5>
+            <span class="badge bg-primary">{{ itens.length }} itens</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Estados de Carregamento -->
+          <div *ngIf="carregando && itens.length === 0" class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="mt-2">Carregando itens...</p>
+          </div>
+
+          <div *ngIf="!carregando && itens.length === 0" class="text-center p-4">
+            <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Nenhum item cadastrado para esta data</p>
+            <button class="btn btn-primary" (click)="abrirFormCriar()" [disabled]="!cafeExisteParaData()">
+              <i class="fas fa-plus"></i> Adicionar Primeiro Item
+            </button>
+          </div>
+
+          <!-- Tabela de Itens -->
+          <div *ngIf="itens.length > 0" class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>Item</th>
+                  <th>Colaborador</th>
+                  <th>CPF</th>
+                  <th>Status</th>
+                  <th width="150">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of itens">
+                  <td>
+                    <strong>{{ item.nome }}</strong>
+                  </td>
+                  <td>{{ item.nomeColaborador }}</td>
+                  <td>
+                    <small class="text-muted">{{ item.cpfColaborador }}</small>
+                  </td>
+                  <td>
+                    <span *ngIf="item.trouxeItem" class="badge bg-success">
+                      <i class="fas fa-check"></i> Trouxe
+                    </span>
+                    <span *ngIf="!item.trouxeItem" class="badge bg-warning text-dark">
+                      <i class="fas fa-clock"></i> Pendente
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <!-- Confirmar Item -->
+                      <button *ngIf="!item.trouxeItem" 
+                              class="btn btn-success"
+                              (click)="marcarItem(item.id, true)"
+                              [disabled]="atualizandoItens.has(item.id)"
+                              title="Confirmar que trouxe o item">
+                        <i class="fas fa-check me-2" *ngIf="!atualizandoItens.has(item.id)"></i>
+                        <div class="spinner-border spinner-border-sm me-2" *ngIf="atualizandoItens.has(item.id)"></div>
+                        {{ atualizandoItens.has(item.id) ? 'Confirmando...' : 'Confirmar' }}
+                      </button>
+                      <!-- Desmarcar Item (aparece quando JÁ trouxe) -->
+                      <button *ngIf="item.trouxeItem" 
+                              class="btn btn-warning"
+                              (click)="marcarItem(item.id, false)"
+                              [disabled]="atualizandoItens.has(item.id)"
+                              title="Desmarcar item">
+                              <i class="fas fa-times me-2" *ngIf="!atualizandoItens.has(item.id)"></i>
+                              <div class="spinner-border spinner-border-sm me-2" *ngIf="atualizandoItens.has(item.id)"></div>
+                              {{ atualizandoItens.has(item.id) ? 'Desmarcando...' : 'Desmarcar' }}
+                      </button>
+                      
+                      <!-- Excluir Item -->
+                      <button class="btn btn-danger"
+                              (click)="deletarItem(item.id)"
+                              [disabled]="atualizandoItens.has(item.id)"
+                              title="Excluir item">
+                        <i class="fas fa-trash me-2"></i>
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Estatísticas -->
+          <div *ngIf="itens.length > 0" class="mt-3">
+            <div class="row text-center">
+              <div class="col-md-4">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h4 class="text-primary">{{ totalItens }}</h4>
+                    <small class="text-muted">Total de Itens</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h4 class="text-success">{{ itensTrazidos }}</h4>
+                    <small class="text-muted">Itens Trazidos</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h4 class="text-warning">{{ itensPendentes }}</h4>
+                    <small class="text-muted">Itens Pendentes</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Espaçamento extra para empurrar o rodapé para baixo -->
+  <div class="mt-5 mb-5" style="height: 400px;"></div>
+</div>
